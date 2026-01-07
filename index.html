@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>早春圖：名畫大富翁 - 行動適配版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&display=swap');
+        
+        :root {
+            --silk-paper: #e3d9bc;
+            --ink-black: #1a1a1a;
+            --seal-red: #c62828;
+            --mount-gold: #b0955d;
+            --wood-dark: #4e342e;
+        }
+
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: #1a1a1a;
+            color: var(--ink-black);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            touch-action: manipulation; /* 優化觸控 */
+        }
+
+        /* 桌面佈局適配手機 */
+        .game-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 10px;
+            background-image: radial-gradient(circle, #2c2c2c 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .board-outer {
+            padding: 8px;
+            background: var(--wood-dark);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .board-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 4px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: var(--mount-gold);
+            padding: 4px;
+            position: relative;
+        }
+
+        .center-art {
+            grid-column: 2 / 6;
+            grid-row: 2 / 6;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Early_Spring_-_Guo_Xi.jpg/800px-Early_Spring_-_Guo_Xi.jpg');
+            background-size: cover;
+            background-position: center;
+            border: 2px double rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cell {
+            background-color: var(--silk-paper);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 4px 2px;
+            font-size: 9px;
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .cell-img-crop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background-size: 300%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Early_Spring_-_Guo_Xi.jpg/600px-Early_Spring_-_Guo_Xi.jpg');
+            opacity: 0.8;
+            filter: sepia(0.2);
+        }
+
+        .cell.collected::after {
+            content: "印";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--seal-red);
+            border: 1px solid var(--seal-red);
+            padding: 1px;
+            font-size: 16px;
+            font-weight: 900;
+            opacity: 0.3;
+        }
+
+        .player-token {
+            width: 24px;
+            height: 24px;
+            background-color: var(--seal-red);
+            border: 2px solid #ffca28;
+            color: #ffca28;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 12px;
+            position: absolute;
+            z-index: 100;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 2px;
+        }
+
+        .dice-rolling {
+            animation: shake 0.3s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* 彈窗優化 */
+        .modal-content {
+            background: #f2ead3;
+            max-width: 90%;
+            width: 350px;
+            border: 8px border-[#5d4037];
+            padding: 20px;
+            text-align: center;
+            border: 6px double var(--wood-dark);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-screen">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-black text-amber-100 tracking-widest mb-1">早春賞遊記</h1>
+            <p class="text-amber-200/40 text-[10px] tracking-widest uppercase">Mobile Edition</p>
+        </header>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="text-amber-200/50 text-[10px]">體力</div>
+                <div id="steps" class="text-2xl font-bold text-red-500">20</div>
+            </div>
+            <div class="stat-card">
+                <div class="text-amber-200/50 text-[10px]">功力</div>
+                <div id="score" class="text-2xl font-bold text-amber-400">0</div>
+            </div>
+        </div>
+
+        <div class="board-outer">
+            <div class="board-container" id="board">
+                <div id="player" class="player-token">郭</div>
+                <div class="center-art"></div>
+            </div>
+        </div>
+
+        <div class="mt-8 w-full max-w-[500px] flex flex-col gap-4">
+            <button id="rollBtn" class="w-full bg-amber-100 text-stone-900 py-4 rounded-xl font-black text-xl shadow-lg active:scale-95 transition-transform">
+                投擲木籌
+            </button>
+            <button id="resetBtn" class="text-amber-100/30 text-sm py-2">
+                重整畫卷
+            </button>
+        </div>
+    </div>
+
+    <!-- 訊息彈窗 -->
+    <div id="modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-[200] p-4">
+        <div class="modal-content relative">
+            <div id="modalImg" class="w-full h-40 bg-cover bg-center mb-4 border border-black/10"></div>
+            <h2 id="modalTitle" class="text-xl font-black text-stone-800 mb-1"></h2>
+            <p id="modalMsg" class="text-stone-600 text-xs leading-relaxed mb-6"></p>
+            
+            <button onclick="closeModal()" class="w-full bg-stone-800 text-amber-50 py-3 font-bold rounded-lg">
+                領悟筆意
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const boardLayout = [
+            { name: "起點", pos: "0% 0%", score: 0, desc: "請隨印章緩緩步入北宋的春天。" },
+            { name: "蟹爪枝", pos: "10% 80%", score: 50, desc: "枝幹如蟹爪般剛勁，是郭熙表現寒林的絕技。" },
+            { name: "雲頭皴", pos: "40% 50%", score: 80, desc: "山石如同捲動層雲，讓靜止的山體產生動感。" },
+            { name: "溪澗", pos: "90% 20%", score: 60, desc: "冰雪初融，山泉匯集成溪，聽見春天的聲音。" },
+            { name: "驢隊", pos: "60% 90%", score: 70, desc: "山徑上的行旅與驢隊，展現了「可行」之境。" },
+            { name: "樓閣", pos: "20% 40%", score: 55, desc: "雲霧間的建築，是文人嚮往的「可居」之地。" },
+            { name: "漁夫", pos: "85% 70%", score: 65, desc: "溪水初暖，漁人已開始辛勞，生活氣息濃厚。" },
+            { name: "平遠", pos: "50% 10%", score: 55, desc: "水面開闊煙霧繚繞，延伸了視覺深度。" },
+            { name: "主峰", pos: "30% 50%", score: 100, desc: "主峰雄峙，象徵宇宙的秩序與崇高。" },
+            { name: "巨石", pos: "70% 40%", score: 45, desc: "巨石層疊，展現北宋山水特有的雄偉量感。" },
+            { name: "草堂", pos: "40% 85%", score: 50, desc: "松林掩映下的居所，靜謐而祥和的人文風景。" },
+            { name: "深遠", pos: "50% 60%", score: 60, desc: "視線穿過山石直達深谷，空間層次豐富。" },
+            { name: "怪石", pos: "15% 75%", score: 40, desc: "奇異山石，展現畫家多變的筆墨掌控力。" },
+            { name: "高遠", pos: "5% 50%", score: 85, desc: "仰視高峰，感受「高遠」之法帶來的震撼。" },
+            { name: "枯木", pos: "80% 85%", score: 45, desc: "枯木新芽並存，正是早春特有的交替美感。" },
+            { name: "雲煙", pos: "35% 30%", score: 55, desc: "雲煙處理虛實生，是郭熙高級的空間手法。" },
+            { name: "渡口", pos: "95% 40%", score: 40, desc: "水邊渡口，充滿禪意與留白的等待。" },
+            { name: "山氣", pos: "25% 65%", score: 70, desc: "山勢連綿充滿生長的意氣，復甦生命力。" },
+            { name: "落款", pos: "10% 10%", score: 150, desc: "發現落款！你已掌握了早春圖的核心神韻。" },
+            { name: "完卷", pos: "50% 50%", score: 120, desc: "完成賞析修行，美景長留心中。" }
+        ];
+
+        let currentPos = 0;
+        let score = 0;
+        let stepsLeft = 20;
+        let isRolling = false;
+
+        const boardEl = document.getElementById('board');
+        const playerEl = document.getElementById('player');
+        const rollBtn = document.getElementById('rollBtn');
+        const stepsEl = document.getElementById('steps');
+        const scoreEl = document.getElementById('score');
+
+        function getCellPosition(index) {
+            if (index < 6) return { r: 1, c: index + 1 };
+            if (index < 10) return { r: index - 4, c: 6 };
+            if (index < 15) return { r: 6, c: 6 - (index - 10) };
+            return { r: 6 - (index - 15) - 1, c: 1 };
+        }
+
+        function initBoard() {
+            boardLayout.forEach((item, i) => {
+                const pos = getCellPosition(i);
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.gridRow = pos.r;
+                cell.style.gridColumn = pos.c;
+                cell.id = `cell-${i}`;
+                cell.innerHTML = `
+                    <div class="cell-img-crop" style="background-position: ${item.pos}"></div>
+                    <div class="z-10 leading-tight">${item.name}</div>
+                `;
+                boardEl.appendChild(cell);
+            });
+            updatePlayerPosition();
+        }
+
+        function updatePlayerPosition() {
+            const pos = getCellPosition(currentPos);
+            const cell = document.getElementById(`cell-${currentPos}`);
+            const rect = cell.getBoundingClientRect();
+            const boardRect = boardEl.getBoundingClientRect();
+
+            // 相對於 board 的位置
+            const top = rect.top - boardRect.top + (rect.height/2) - (playerEl.offsetHeight/2);
+            const left = rect.left - boardRect.left + (rect.width/2) - (playerEl.offsetWidth/2);
+
+            playerEl.style.top = `${top}px`;
+            playerEl.style.left = `${left}px`;
+            
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('ring-2', 'ring-amber-400'));
+            cell.classList.add('ring-2', 'ring-amber-400');
+        }
+
+        function rollDice() {
+            if (isRolling || stepsLeft <= 0) return;
+            isRolling = true;
+            rollBtn.classList.add('dice-rolling');
+            
+            const roll = Math.floor(Math.random() * 6) + 1;
+            let count = 0;
+            
+            const timer = setInterval(() => {
+                currentPos = (currentPos + 1) % boardLayout.length;
+                updatePlayerPosition();
+                count++;
+                if (count === roll) {
+                    clearInterval(timer);
+                    rollBtn.classList.remove('dice-rolling');
+                    processLanding();
+                    isRolling = false;
+                }
+            }, 150);
+        }
+
+        function processLanding() {
+            const cell = boardLayout[currentPos];
+            score += cell.score;
+            stepsLeft--;
+            
+            scoreEl.textContent = score;
+            stepsEl.textContent = stepsLeft;
+            document.getElementById(`cell-${currentPos}`).classList.add('collected');
+
+            if (currentPos !== 0) {
+                const modalImg = document.getElementById('modalImg');
+                modalImg.style.backgroundImage = `url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Early_Spring_-_Guo_Xi.jpg/600px-Early_Spring_-_Guo_Xi.jpg')`;
+                modalImg.style.backgroundPosition = cell.pos;
+                modalImg.style.backgroundSize = "400%";
+                
+                document.getElementById('modalTitle').textContent = cell.name;
+                document.getElementById('modalMsg').textContent = cell.desc;
+                document.getElementById('modal').style.display = 'flex';
+            }
+
+            if (stepsLeft <= 0) {
+                setTimeout(endGame, 1000);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function endGame() {
+            document.getElementById('modalTitle').textContent = "賞析圓滿";
+            document.getElementById('modalMsg').innerHTML = `
+                <div class="text-2xl font-black mb-2">功力：${score}</div>
+                您已完成本次早春修行。
+            `;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        rollBtn.addEventListener('click', rollDice);
+        document.getElementById('resetBtn').addEventListener('click', () => location.reload());
+        window.addEventListener('resize', updatePlayerPosition);
+        window.onload = initBoard;
+    </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
